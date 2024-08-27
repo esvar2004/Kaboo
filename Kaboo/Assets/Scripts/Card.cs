@@ -5,7 +5,7 @@ using UnityEngine;
 public enum Suit {Hearts, Diamonds, Spades, Clubs}
 public enum Rank {Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King}
 
-public class Card : MonoBehaviour
+public class Card
 {
     // Start is called before the first frame update
     public Suit suit;
@@ -17,16 +17,5 @@ public class Card : MonoBehaviour
         this.suit = suit;
         this.rank = rank;
         this.sprite = sprite;
-    }
-
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

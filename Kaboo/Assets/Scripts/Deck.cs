@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Deck : MonoBehaviour
+public class Deck
 {
     private List<Card> cards;
 
@@ -28,7 +28,13 @@ public class Deck : MonoBehaviour
 
     public void Shuffle()
     {
-        // Implement a shuffle algorithm like Fisher-Yates
+        for (int i = 0; i < cards.Count; i++)
+        {
+            Card temp = cards[i];
+            int randomIndex = Random.Range(i, cards.Count);
+            cards[i] = cards[randomIndex];
+            cards[randomIndex] = temp;
+        }
     }
 
     public Card DrawCard()
@@ -37,16 +43,5 @@ public class Deck : MonoBehaviour
         Card drawnCard = cards[0];
         cards.RemoveAt(0);
         return drawnCard;
-    }
-
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
