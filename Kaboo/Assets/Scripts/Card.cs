@@ -12,10 +12,13 @@ public class Card
     public Rank rank;
     public Sprite sprite;
 
+    public bool[] visibility;
+
     public Card(Suit suit, Rank rank, Sprite sprite)
     {
         this.suit = suit;
         this.rank = rank;
         this.sprite = sprite;
+        this.visibility = new bool[4];
     }
 }

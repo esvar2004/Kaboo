@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,7 +24,7 @@ public class Deck
             }
         }
     }
-  
+
     public void Shuffle()
     {
         for (int i = 0; i < cards.Count; i++)
@@ -43,5 +42,16 @@ public class Deck
         Card drawnCard = cards[0];
         cards.RemoveAt(0);
         return drawnCard;
+    }
+
+    public void DistributeCards(List<Player> players, int cardsPerPlayer)
+    {
+        for (int i = 0; i < cardsPerPlayer; i++)
+        {
+            foreach (Player player in players)
+            {
+                player.AddCard(DrawCard());
+            }
+        }
     }
 }
