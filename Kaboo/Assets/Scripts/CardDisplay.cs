@@ -6,17 +6,21 @@ public class CardDisplay : MonoBehaviour
 {
     public GameObject cardPrefab;
     public List<Sprite> cardSprites;
+    public Sprite backOfCard;
     public Button cardButton;
-
+    public Button nextTurn;
+    public List<GameObject> cardPrefabsInPlay;
     private Deck deck;
     private List<Player> players;
     public int sortingOrder;
+    public int currentPlayer;
 
     void Start()
     {
         
         deck = new Deck(cardSprites);
         players = new List<Player>();
+        sortingOrder = 1;
 
         for (int i = 0; i < 4; i++) // Create 4 players
         {
@@ -32,7 +36,12 @@ public class CardDisplay : MonoBehaviour
             cardButton.onClick.AddListener(DrawCard);
         }
 
-        sortingOrder = 1;
+        currVisibility(currentPlayer);
+
+        if (nextTurn != null)
+        {
+            nextTurn.onClick.AddListener(() => currVisibility(++currentPlayer));
+        }
     }
 
     void DrawCard()
@@ -53,10 +62,10 @@ public class CardDisplay : MonoBehaviour
         // Define positions for each player's cards (center points)
         Vector3[] playerPositions = new Vector3[]
         {
-        new Vector3(0f, 250f, 0),   // Top (Player 1)
-        new Vector3(0f, -250f, 0),  // Bottom (Player 2)
-        new Vector3(-450f, 0f, 0),  // Left (Player 3)
-        new Vector3(450f, 0f, 0)    // Right (Player 4)
+            new Vector3(0f, 250f, 0),   // Top (Player 1)
+            new Vector3(0f, -250f, 0),  // Bottom (Player 2)
+            new Vector3(-450f, 0f, 0),  // Left (Player 3)
+            new Vector3(450f, 0f, 0)    // Right (Player 4)
         };
 
         // Define offsets to position the 4 cards in a 2x2 grid relative to the player's position
@@ -84,6 +93,7 @@ public class CardDisplay : MonoBehaviour
                 // Use the cardOffsets for 2x2 grid positioning
                 Vector3 cardPosition = playerPosition + cardOffsets[i, j];
                 GameObject cardGO = Instantiate(cardPrefab, cardPosition, Quaternion.identity);
+                cardPrefabsInPlay.Add(cardGO);
                 cardGO.transform.SetParent(transform, false);
                 cardGO.GetComponent<SpriteRenderer>().sprite = players[i].hand[j].sprite;
                 cardGO.GetComponent<SpriteRenderer>().sortingOrder = 1;
@@ -94,6 +104,18 @@ public class CardDisplay : MonoBehaviour
 
     void displayCard(int num, bool visibility){
 
+    }
+
+    void currVisibility(int playerIndex)
+    {
+        playerIndex = playerIndex % 4;
+        for(int i = 0; i < deck.cardsInPlay.Count; i++)
+        {
+            if(deck.cardsInPlay[i].visibility[playerIndex])
+                cardPrefabsInPlay[i].GetComponent<SpriteRenderer>().sprite = deck.cardsInPlay[i].sprite;
+            else
+                cardPrefabsInPlay[i].GetComponent<SpriteRenderer>().sprite = backOfCard;
+        }
     }
 
     void Update()

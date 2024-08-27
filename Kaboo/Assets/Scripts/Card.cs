@@ -11,7 +11,6 @@ public class Card
     public Suit suit;
     public Rank rank;
     public Sprite sprite;
-
     public bool[] visibility;
 
     public Card(Suit suit, Rank rank, Sprite sprite)

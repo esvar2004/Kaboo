@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
-public class Player
+public class Player : MonoBehaviour
 {
     public List<Card> hand;
     public int player_num;
@@ -14,5 +16,10 @@ public class Player
     public void AddCard(Card card)
     {
         hand.Add(card);
+    }
+
+    public void update()
+    {
+
     }
 }

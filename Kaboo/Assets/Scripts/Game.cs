@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-
     public List<int> turn;
     CardDisplay cardDisplay;
 

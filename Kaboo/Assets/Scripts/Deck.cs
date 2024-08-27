@@ -4,10 +4,12 @@ using UnityEngine;
 public class Deck
 {
     private List<Card> cards;
+    public List<Card> cardsInPlay;
 
     public Deck(List<Sprite> cardSprites)
     {
         cards = new List<Card>();
+        cardsInPlay = new List<Card>();
         InitializeDeck(cardSprites);
         Shuffle();
     }
@@ -46,11 +48,14 @@ public class Deck
 
     public void DistributeCards(List<Player> players, int cardsPerPlayer)
     {
-        for (int i = 0; i < cardsPerPlayer; i++)
+        foreach (Player player in players)
         {
-            foreach (Player player in players)
+            for(int i = 0; i < cardsPerPlayer; i++)
             {
-                player.AddCard(DrawCard());
+                Card card = DrawCard();
+                cardsInPlay.Add(card);
+                card.visibility[player.player_num] = true;
+                player.AddCard(card);
             }
         }
     }
