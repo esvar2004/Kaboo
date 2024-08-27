@@ -25,7 +25,7 @@ public class Deck
             }
         }
     }
-
+  
     public void Shuffle()
     {
         for (int i = 0; i < cards.Count; i++)
