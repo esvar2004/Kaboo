@@ -55,6 +55,7 @@ public class Deck
                 Card card = DrawCard();
                 cardsInPlay.Add(card);
                 card.visibility[player.player_num] = true;
+                card.clickable[player.player_num] = true;
                 player.AddCard(card);
             }
         }

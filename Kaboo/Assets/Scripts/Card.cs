@@ -12,6 +12,7 @@ public class Card
     public Rank rank;
     public Sprite sprite;
     public bool[] visibility;
+    public bool[] clickable;
 
     public Card(Suit suit, Rank rank, Sprite sprite)
     {
@@ -19,5 +20,6 @@ public class Card
         this.rank = rank;
         this.sprite = sprite;
         this.visibility = new bool[4];
+        this.clickable = new bool[4];
     }
 }
