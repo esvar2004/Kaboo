@@ -5,12 +5,13 @@ using System;
 
 public class Game : MonoBehaviour
 {
-    public GameObject cardPrefab; // 
+    public GameObject cardPrefab;
     public List<Sprite> cardSprites; //List of All the Sprites
     public Sprite backOfCard; //Sprite Representing Back of the Card to Keep Hidden Cards Invisible
     public Button cardButton; // Button to Draw a Card
-    public Button nextTurn; //Button to Shift to Next Player
     public Button startGame; //Button to Start the Game
+    public Button discardButton; //Button to Discard the Card
+    public Image discardPile;
     public List<GameObject> cardPrefabsInPlay; //Contains the actual GameObjects (cards) in play 
     private Deck deck; //Deck of Cards
     private List<Player> players; //List of Players
@@ -42,21 +43,13 @@ public class Game : MonoBehaviour
         {
             cardButton.onClick.AddListener(() => DrawCard(players[currentPlayer]));
         }
-        
-        // if (nextTurn != null)
-        // {
-        //     nextTurn.onClick.AddListener(() => {
-        //         int playerRemoved = pQueue[0];
-        //         pQueue.RemoveAt(0);
-        //         pQueue.Add(playerRemoved);
-        //         currentPlayer = pQueue[0];
-        //         currVisibility(currentPlayer);
-        //     });
-        // }
     }
 
     private void DrawCard(Player player)
     {
+        if(player.hasDrawnCard == true)
+            return;
+
         Card card = deck.DrawCard();
         if (card != null)
         {
@@ -67,23 +60,33 @@ public class Game : MonoBehaviour
                 cardGO.AddComponent<BoxCollider2D>();
             }
 
+            if (discardButton != null)
+            {
+                discardButton.onClick.AddListener(() => DiscardCard(card, cardGO));
+            }
+
             card.visibility[player.player_num] = true;
 
             CardClickHandler cardClickHandler = cardGO.AddComponent<CardClickHandler>();
-            cardClickHandler.Initialize(card, pQueue, CardClickHandler.CardType.Center, () => OnCenterCardSwap(card, cardGO));
+            cardClickHandler.Initialize(card, pQueue, CardClickHandler.CardType.Center, discardPile, () => OnCenterCardSwap(card, cardGO));
 
             cardGO.transform.SetParent(transform, false);
             cardGO.GetComponent<SpriteRenderer>().sprite = card.sprite;
             cardGO.GetComponent<SpriteRenderer>().sortingOrder = 1;
             cardGO.transform.localScale = new Vector3(6f, 6f, 1f);
 
-            // if(CardClickHandler.centerCardSwapped)
-            // {
-            //     player.AddCard(card);
-            //     player.AddCardSprite(cardGO);
-            //     Debug.Log(player.hand);
-            // }
+            player.hasDrawnCard = true;
         }
+    }
+
+    //Have to assign power-ups here.
+    private void DiscardCard(Card card, GameObject cardGO)
+    {
+        Array.Fill(card.visibility, true);
+        CardClickHandler centerCard = cardGO.GetComponent<CardClickHandler>();
+        centerCard.transform.localPosition = new Vector3(-221f, -15f, 0f);
+
+        ProceedToNextPlayer();
     }
 
     private void OnCenterCardSwap(Card card, GameObject cardGO)
@@ -97,22 +100,26 @@ public class Game : MonoBehaviour
         deck.cardsInPlay.Remove(selectedCard.GetComponent<CardClickHandler>().card);
         cardPrefabsInPlay.Remove(selectedCard);
 
-        selectedCard = null;
+        CardClickHandler.currentlySelectedCard = null;
         player.AddCard(card);
         player.AddCardSprite(cardGO);
         deck.cardsInPlay.Add(card);
         cardPrefabsInPlay.Add(cardGO);
+
+        player.hasDrawnCard = false;
         
-        int playerRemoved = pQueue[0];
-        pQueue.RemoveAt(0);
-        pQueue.Add(playerRemoved);
-        currentPlayer = pQueue[0];
-        
+        //Proceeds to the next player's turn.
         ProceedToNextPlayer();
     }
 
     private void ProceedToNextPlayer()
     {
+        //Controls the movement of the game.
+        int playerRemoved = pQueue[0];
+        pQueue.RemoveAt(0);
+        pQueue.Add(playerRemoved);
+        currentPlayer = pQueue[0];
+
         Player nextPlayer = players[currentPlayer];
         DrawCard(nextPlayer); // Draw a card for the next player
 
@@ -165,7 +172,7 @@ public class Game : MonoBehaviour
                 }
 
                 CardClickHandler cardClickHandler = cardGO.AddComponent<CardClickHandler>();
-                cardClickHandler.Initialize(players[i].hand[j], pQueue, CardClickHandler.CardType.Hand);
+                cardClickHandler.Initialize(players[i].hand[j], pQueue, CardClickHandler.CardType.Hand, discardPile);
 
                 cardPrefabsInPlay.Add(cardGO);
                 cardGO.transform.SetParent(transform, false);

@@ -6,23 +6,25 @@ using System;
 
 public class CardClickHandler : MonoBehaviour, IPointerClickHandler
 {
+    public static GameObject currentlySelectedCard;
     public enum CardType {Hand, Center};
     public CardType cardType;
     private Vector3 originalPosition;
-    public static GameObject currentlySelectedCard;
+    public Image discardPile;
     public Card card;
     private bool isSelected = false;
     private bool[] clickable;
     private List<int> pQueue;
     private Action onCenterCardClick;
 
-    public void Initialize(Card card, List<int> pQueue, CardType cardType, Action onCenterCardClick = null)
+    public void Initialize(Card card, List<int> pQueue, CardType cardType, Image discardPile, Action onCenterCardClick = null)
     {
         this.card = card;
         this.clickable = card.clickable;
         this.pQueue = pQueue;
         this.cardType = cardType;
         this.onCenterCardClick = onCenterCardClick;
+        this.discardPile = discardPile;
     }
 
     private void Start()
@@ -58,6 +60,7 @@ public class CardClickHandler : MonoBehaviour, IPointerClickHandler
                 }
             }
             // If not selected, move the card up to indicate selection
+            originalPosition = transform.localPosition;
             transform.localPosition = new Vector3(originalPosition.x, originalPosition.y + 50f, originalPosition.z);
             isSelected = true;
             currentlySelectedCard = gameObject;
@@ -66,9 +69,17 @@ public class CardClickHandler : MonoBehaviour, IPointerClickHandler
 
     private void CenterCardClick()
     {
+        //Places the swapped card in the place of the discarded card in the player's hand.
         CardClickHandler selected = currentlySelectedCard.GetComponent<CardClickHandler>();
         transform.localPosition = new Vector3(selected.originalPosition.x, selected.originalPosition.y, originalPosition.z);
-        currentlySelectedCard.transform.localPosition = new Vector3(-221f, -15f, originalPosition.z);
+
+        //Places the discarded card in the discard pile.
+        currentlySelectedCard.transform.SetParent(discardPile.transform, false);
+        RectTransform objectRectTransform = currentlySelectedCard.GetComponent<RectTransform>();
+        RectTransform imageRectTransform = discardPile.GetComponent<RectTransform>();
+        objectRectTransform.sizeDelta = imageRectTransform.sizeDelta;
+        objectRectTransform.position = imageRectTransform.position;
+        objectRectTransform.localScale = new Vector3(1f, 1.5f, 1f);
 
         cardType = CardClickHandler.CardType.Hand;
         clickable[pQueue[0]] = true;

@@ -7,12 +7,14 @@ public class Player : MonoBehaviour
     public List<Card> hand;
     public List<GameObject> spritesHand;
     public int player_num;
+    public bool hasDrawnCard;
 
     public Player(int player_num)
     {
         hand = new List<Card>();
         spritesHand = new List<GameObject>();
         this.player_num = player_num;
+        this.hasDrawnCard = false;
     }
 
     public void AddCard(Card card)
