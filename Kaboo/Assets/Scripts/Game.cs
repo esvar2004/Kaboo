@@ -17,6 +17,7 @@ public class Game : MonoBehaviour
     private List<Player> players; //List of Players
     public int currentPlayer; //Reference to the Current Player
     public List<int> pQueue; //Priority Queue Indicating Whose Turn is Next
+    private bool drawn; //Checks if the player has started their turn.
 
     void Start()
     {
@@ -35,14 +36,19 @@ public class Game : MonoBehaviour
             startGame.onClick.AddListener(() => {
                 deck.DistributeCards(players, 4); // Distribute 4 cards to each player
                 DisplayPlayerStartingHands();
-                currVisibility(currentPlayer);
+                startPlayerTurn(players[currentPlayer]);
             });
         }
 
-        if (cardButton != null)
-        {
-            cardButton.onClick.AddListener(() => DrawCard(players[currentPlayer]));
-        }
+        cardButton.gameObject.SetActive(false);
+    }
+
+    private void startPlayerTurn(Player player)
+    {
+        currVisibility(player.player_num);
+        cardButton.gameObject.SetActive(true);
+        cardButton.onClick.RemoveAllListeners();
+        cardButton.onClick.AddListener(() => DrawCard(player));
     }
 
     private void DrawCard(Player player)
@@ -121,10 +127,7 @@ public class Game : MonoBehaviour
         currentPlayer = pQueue[0];
 
         Player nextPlayer = players[currentPlayer];
-        DrawCard(nextPlayer); // Draw a card for the next player
-
-        // Update UI or visibility settings
-        currVisibility(currentPlayer);
+        startPlayerTurn(nextPlayer);
     }
 
     void DisplayPlayerStartingHands()
