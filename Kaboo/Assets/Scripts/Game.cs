@@ -11,6 +11,7 @@ public class Game : MonoBehaviour
     public Button cardButton; // Button to Draw a Card
     public Button startGame; //Button to Start the Game
     public Button discardButton; //Button to Discard the Card
+    public Button winnerButton; //Button to Calculate Winner
     public Image discardPile;
     public List<GameObject> cardPrefabsInPlay; //Contains the actual GameObjects (cards) in play 
     private Deck deck; //Deck of Cards
@@ -37,10 +38,13 @@ public class Game : MonoBehaviour
                 deck.DistributeCards(players, 4); // Distribute 4 cards to each player
                 DisplayPlayerStartingHands();
                 startPlayerTurn(players[currentPlayer]);
+                startGame.gameObject.SetActive(false);
             });
         }
 
         cardButton.gameObject.SetActive(false);
+        discardButton.gameObject.SetActive(false);
+        winnerButton.onClick.AddListener(() => calculateWinner());
     }
 
     private void startPlayerTurn(Player player)
@@ -66,6 +70,10 @@ public class Game : MonoBehaviour
                 cardGO.AddComponent<BoxCollider2D>();
             }
 
+
+            //Handles discarding logic.
+            discardButton.onClick.RemoveAllListeners();
+            discardButton.gameObject.SetActive(true);
             if (discardButton != null)
             {
                 discardButton.onClick.AddListener(() => DiscardCard(card, cardGO));
@@ -73,6 +81,7 @@ public class Game : MonoBehaviour
 
             card.visibility[player.player_num] = true;
 
+            //Handles swapping logic.
             CardClickHandler cardClickHandler = cardGO.AddComponent<CardClickHandler>();
             cardClickHandler.Initialize(card, pQueue, CardClickHandler.CardType.Center, discardPile, () => OnCenterCardSwap(card, cardGO));
 
@@ -89,8 +98,15 @@ public class Game : MonoBehaviour
     private void DiscardCard(Card card, GameObject cardGO)
     {
         Array.Fill(card.visibility, true);
-        CardClickHandler centerCard = cardGO.GetComponent<CardClickHandler>();
-        centerCard.transform.localPosition = new Vector3(-221f, -15f, 0f);
+
+        cardGO.transform.SetParent(discardPile.transform, false);
+        RectTransform objectRectTransform = cardGO.GetComponent<RectTransform>();
+        RectTransform imageRectTransform = discardPile.GetComponent<RectTransform>();
+        objectRectTransform.sizeDelta = imageRectTransform.sizeDelta;
+        objectRectTransform.position = imageRectTransform.position;
+        objectRectTransform.localScale = new Vector3(1f, 1.5f, 1f);
+
+        discardButton.gameObject.SetActive(false);
 
         ProceedToNextPlayer();
     }
@@ -112,7 +128,7 @@ public class Game : MonoBehaviour
         deck.cardsInPlay.Add(card);
         cardPrefabsInPlay.Add(cardGO);
 
-        player.hasDrawnCard = false;
+        discardButton.gameObject.SetActive(false);
         
         //Proceeds to the next player's turn.
         ProceedToNextPlayer();
@@ -122,6 +138,7 @@ public class Game : MonoBehaviour
     {
         //Controls the movement of the game.
         int playerRemoved = pQueue[0];
+        players[playerRemoved].hasDrawnCard = false;
         pQueue.RemoveAt(0);
         pQueue.Add(playerRemoved);
         currentPlayer = pQueue[0];
@@ -195,6 +212,29 @@ public class Game : MonoBehaviour
             else
                 cardPrefabsInPlay[i].GetComponent<SpriteRenderer>().sprite = backOfCard;
         }
+    }
+
+    private void calculateWinner()
+    {
+        int player_winner = 1;
+        int winning_hand = 100;
+        for(int i = 0; i < players.Count; i++)
+        {
+            int hand_value = 0;
+            for(int j = 0; j < players[i].hand.Count; j++)
+            {
+                hand_value += players[i].hand[j].value;   
+            }
+
+            if(hand_value < winning_hand)
+            {
+                player_winner = i + 1;
+                winning_hand = hand_value;
+            }
+
+            Debug.Log("Player " + (i + 1) + ":" + hand_value);
+        }
+        Debug.Log("Winner: " + (player_winner) + ":" + winning_hand);
     }
 
     void Update()
